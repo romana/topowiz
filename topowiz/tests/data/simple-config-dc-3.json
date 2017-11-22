@@ -1,0 +1,11 @@
+{
+    "networks" : [
+        {
+            "cidr" : "10.1.0.0/16"
+        }
+    ],
+    "datacenter" : {
+        "num_racks" : 8
+    }
+}
+

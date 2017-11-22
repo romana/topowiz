@@ -1,0 +1,12 @@
+{
+    "networks" : [
+        {
+            "cidr" : "10.1.0.0/16"
+        }
+    ],
+    "datacenter" : {
+        "flat_network" : true,
+        "num_hosts" : 5
+    }
+}
+
