@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Copyright 2017 Pani Networks Inc.
 
@@ -17,9 +15,10 @@ limitations under the License.
 
 """
 
-# A quick wrapper that allows us to run the application during development out
-# of the source directory, without actually having to install it.
+from flask import Flask
 
-from topowiz import main
+app = Flask(__name__)
 
-main.main()
+@app.route('/')
+def hello_world():
+    return 'Hello World!!'

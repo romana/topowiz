@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main">
+    <div class="config">
+        <p class="current_config_hdr">Current config:</p>
+        <pre>
+{{ render_conf }}
+        </pre>
+    </div>
+    <div class="questions">
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+        {{ qlookup[question] }}
+
+        <form class="quest" action="/{{ conf_url }}" align=center>
+            {# A simple version of 'forms', all encoded in the #}
+            {# HTML, rather than some self-rendering entity.   #}
+            {% if question == "is_aws" %}
+                <label><input type="radio" name="is_aws" value="true">In an AWS VPC</input></label><br>
+                <label><input type="radio" name="is_aws" value="false">In my own data center</input></label><br>
+            {% elif question == "aws_region" %}
+                {% for region in aws_regions %}
+                    <label><input type="radio" name="aws_region" value="{{ region }}">{{ region }}</input></label><br>
+                {% endfor %}
+            {% elif question == "aws_zones" %}
+                {% for zone in aws_zones[conf.aws_region] %}
+                    <label><input type="checkbox" name="aws_zones" value="{{ zone }}">{{ zone }}</input></label><br>
+                {% endfor %}
+            {% endif %}
+            <br>
+            <input class="submit_button" type="submit" value="Submit" />
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>Welcome to the Romana Topology Generator</h1>
+{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div class="explanation">
+        <p>Romana is a network and security automation solution for
+        cloud native applications. An advanced, topology
+        aware IPAM module ensures that endpoint (VMs or pods) IP
+        addresses align with the topology of your network. This in
+        turn makes it possible for Romana to effectively aggregate
+        routes, resulting in many operational and security
+        advantages:</p>
+
+        <p>
+            <ul>
+                <li>Ability to use native L3 routing, allowing
+                    network equipment to work at its best</li>
+                <li>Greatly reduced number of routes in your
+                    networking hardware</li>
+                <li>Stable routing configurations, less route
+                    updates required</li>
+                <li>No "leaking" of endpoint routes into the
+                    networking fabric</li>
+            </ul>
+        </p>
+
+        <p>Key to Romana's topology aware IPAM is the <b>topology
+        configuration</b> in which the underlying network topology
+        for your cluster is modeled.</p>
+
+        <p>This web based <b>topology generator</b> makes the
+        creation of your topology configuration easy. It will ask
+        you a few questions about your network and then give you a
+        link from which to download your configuration file.</p>
+
+        <form action="/init" align=center>
+            <input class="start_button" type="submit" value="Get started..." />
+        </form>
+    </div>
+</div>
+{% endblock %}

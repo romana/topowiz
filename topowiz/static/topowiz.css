@@ -1,0 +1,98 @@
+h1 {
+    font-family: Verdana;
+    font-size: 3em;
+    color: #44546a;
+}
+
+h2 {
+    font-family: Verdana;
+    font-size: 2em;
+    color: #44546a;
+    float: left;
+    width: 60%;
+}
+
+.navbar {
+    padding-top:0.9em;
+    font-family: Verdana;
+    font-size: 1.2em;
+    color: #44546a;
+    width: 90%;
+    left-padding: 10%;
+    right-padding: 20%;
+    text-align: left;
+    float:left;
+    width:20%;
+}
+
+.main {
+    width: 80%;
+    left-padding: 20%;
+    right-padding: 20%;
+    text-align: left;
+}
+
+.explanation {
+    font-family: Verdana;
+    font-size: 1.5em;
+    color: #44546a;
+}
+
+p.error {
+    font-family: Verdana;
+    font-size: 1em;
+    background-color: #ff9999;
+    color: #600;
+    padding:0.5em;
+}
+
+.config {
+    font-family: courier;
+    font-size: 1.2em;
+    color: #44546a;
+    float: left;
+    width: 30%;
+    overflow: auto;
+}
+
+.questions {
+    font-family: Verdana;
+    font-size: 1.2em;
+    color: #44546a;
+    float: left;
+    width: 65%;
+    padding-left: 4%;
+    padding-top: 30px;
+    border-left: 1px solid;
+    text-align:left;
+}
+
+form.quest {
+    text-align: left;
+    padding-top:1em;
+}
+
+.start_button {
+    font-family: Verdana;
+    font-size: 1em;
+    color: #44546a;
+}
+
+.submit_button {
+    font-family: Verdana;
+    font-size: 0.9em;
+    color: #44546a;
+    margin-top:1em;
+}
+
+p.current_config_hdr {
+    font-weight: bold;
+    font-family: Verdana;
+}
+
+p.copyright {
+    font-family: Verdana;
+    font-style: oblique;
+    font-size: 0.5em;
+    color: #44546a;
+}

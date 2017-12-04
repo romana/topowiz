@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Copyright 2017 Pani Networks Inc.
 
@@ -16,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 """
-
-from __future__ import print_function
 
 import ipaddr
 import json
