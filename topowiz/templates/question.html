@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+
+{% block form %}
+
+    {% if table_title %}
+        <p class="table_title">{{ table_title }}</p>
+    {% endif %}
+        <table>
+        {% for field in form %}
+            {% if field != form.csrf_token %}
+                {% if field.errors %}
+                    <tr>
+                        <td colspan=2>
+                            {% for e in field.errors %}
+                                <p class="error">{{ e }}</p>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    {% if table_title and field != form.submit %}
+                        <td>
+                    {% else %}
+                        <td colspan=2>
+                    {% endif %}
+                    {% if field != form.submit %}
+                            {{ field.label }}
+                    {% endif %}
+                    {% if table_title and field != form.submit %}
+                        </td>
+                        <td>
+                    {% endif %}
+                            {{ field() }}
+                        </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </table>
+
+{% endblock %}

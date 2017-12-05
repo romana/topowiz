@@ -1,0 +1,12 @@
+{% extends "main.html" %}
+
+{% block form %}
+
+    {% for field in form %}
+        {% if field != form.csrf_token %}
+            {{ field.label }}
+            {{ field() }}
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}

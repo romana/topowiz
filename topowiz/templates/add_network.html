@@ -1,0 +1,37 @@
+{% extends "main.html" %}
+
+{% block form %}
+
+    <p class="table_title">{{ table_title }}{% if show_cancel %}{{ form.cancel() }}{% endif %}</p>
+    <table>
+
+    {% for field in form %}
+        {% if field != form.csrf_token and field != form.submit and field != form.cancel %}
+            {% if field.errors %}
+                <tr>
+                    <td colspan=2>
+                        {% for e in field.errors %}
+                            <p class="error">{{ e }}</p>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td>
+                    {{ field.label }}
+                </td>
+                <td>
+                    {{ field() }}
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+            <tr>
+                <td colspan=2>
+                    {{ form.submit() }}
+                </td>
+            </tr>
+
+    </table>
+
+{% endblock %}

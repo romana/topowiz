@@ -7,13 +7,12 @@
 {% block content %}
 <div class="main">
     <div class="explanation">
-        <p>Romana is a network and security automation solution for
-        cloud native applications. An advanced, topology
-        aware IPAM module ensures that endpoint (VMs or pods) IP
-        addresses align with the topology of your network. This in
-        turn makes it possible for Romana to effectively aggregate
-        routes, resulting in many operational and security
-        advantages:</p>
+        <p><a href="http://romana.io">Romana</a> is a network and security
+        automation solution for cloud cloud native applications. An advanced,
+        topology aware IPAM module ensures that IP addresses of endpoints (VMs
+        or pods) align with the topology of your network. This in turn makes it
+        possible for Romana to effectively aggregate routes, resulting in many
+        operational and security advantages:</p>
 
         <p>
             <ul>
@@ -36,10 +35,13 @@
         creation of your topology configuration easy. It will ask
         you a few questions about your network and then give you a
         link from which to download your configuration file.</p>
+        <br>
 
-        <form action="/init" align=center>
+        <form action="/is_aws" align=center>
             <input class="start_button" type="submit" value="Get started..." />
         </form>
+
+        <br>
     </div>
 </div>
 {% endblock %}

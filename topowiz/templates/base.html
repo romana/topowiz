@@ -4,6 +4,7 @@
         <link rel="stylesheet" href="/static/topowiz.css">
         <link rel="shortcut icon" href="/static/favicon.ico">
     </head>
+
     <body>
         <center>
             <a href="http://romana.io"><img src="/static/romana_logo_small.png"></a>
@@ -11,18 +12,27 @@
             {% block header %}
             <div class="navbar">
                 <form action="/">
-                    <input class="submit_button" type="submit" value="<< Restart" />
+                    <input type="submit" value="<< Restart" />
                 </form>
             </div>
             <h2>Romana Topology Generator</h2>
             <div style="clear:both"></div>
             <hr>
             {% endblock %}
+
             {% block content %}
             {% endblock %}
+
             <div style="clear:both"></div>
             <hr>
+            <p class="footer">
+                <a href="http://romana.io">Home</a>
+                <a href="http://docs.romana.io">Documentation</a>
+                <a href="http://github.com/romana/romana">Source code</a>
+                <a href="http://romana.io/blog">Blog</a>
+            </p>
             <p class="copyright">&copy; Copyright 2017 Pani Networks Inc.</p>
         </center>
+
     </body>
 </html>

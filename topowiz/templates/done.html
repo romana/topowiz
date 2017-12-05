@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main">
+    <div class="config">
+        <p class="current_config_hdr">User provided config:</p>
+        <pre>
+{{ render_conf }}
+        </pre>
+    </div>
+    <div class="topology">
+        <p class="current_config_hdr">Generated Romana topology:</p>
+        <pre>
+{{ topo }}
+        </pre>
+    </div>
+    <div class="download">
+        <p class="current_config_hdr">Download link:</p>
+        <a href="{{ download_link }}">Topology JSON</a>
+    </div>
+</div>
+{% endblock %}
