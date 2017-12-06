@@ -2,8 +2,7 @@
 
 ## Installation
 
-TopoWiz was developed on a Ubuntu 14.04 system. It should work on later
-versions of Ubuntu as well. Developed with Python 3.4.3 and boto3.
+TopoWiz was developed for Linux / Python 3.6.3.
 
 Here are the steps to create a working environment locally:
 
@@ -70,6 +69,3 @@ To run 'style' tests to ensure all code complies with pep8 and other coding
 standards:
 
     $ ./style_tests.sh
-
-The code for the self-contained lambda function is located in the folder
-topowiz/lambda_function.
