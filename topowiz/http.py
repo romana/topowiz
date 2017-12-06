@@ -18,7 +18,6 @@ limitations under the License.
 import base64
 import ipaddr
 import json
-import urllib
 
 from flask     import Flask, render_template, request, redirect, url_for
 from wtforms   import RadioField, SelectMultipleField, StringField, \
