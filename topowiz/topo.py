@@ -28,7 +28,7 @@ def calculate_num_groups(conf, num_networks=None):
     than 48 route total.
 
     """
-    num_zones  = len(conf['aws_zones'])
+    num_zones  = len(conf['aws']['zones'])
     num_nets   = len(conf['networks']) if num_networks is None else \
                                        num_networks
     num_groups = 32
@@ -55,17 +55,17 @@ def _build_aws_topology(conf):
         "map"      : []
     }
 
-    num_zones = len(conf['aws_zones'])
+    num_zones = len(conf['aws']['zones'])
 
     if num_zones == 1:
         t["map"].append({
-            "name"   : conf['aws_zones'][0],
+            "name"   : conf['aws']['zones'][0],
             "groups" : []
         })
     else:
         num_groups = calculate_num_groups(conf)
 
-        for zone in conf['aws_zones']:
+        for zone in conf['aws']['zones']:
             m = {
                 "name" : zone,
                 "assignment" : {"failure-domain" : zone},
@@ -90,14 +90,15 @@ def _build_dc_topology(conf):
     }
 
     top_level_group_label = None
-    if conf['dc_flat_net']:
-        if conf['dc_pg_per_host']:
-            num_groups = conf['dc_flat_net_num_hosts']
+    cd = conf['datacenter']
+    if cd['flat_network']:
+        if cd['prefix_per_host']:
+            num_groups = cd['num_hosts']
             top_level_group_label = "host-%d"
         else:
             num_groups = 1
     else:
-        num_groups = conf['dc_num_racks']
+        num_groups = cd['num_racks']
         top_level_group_label = "rack-%d"
 
     m = []
@@ -105,14 +106,14 @@ def _build_dc_topology(conf):
         g = {"groups" : []}
         if top_level_group_label:
             g["name"] = top_level_group_label % i
-        if not conf['dc_flat_net']:
+        if not cd['flat_network']:
             g["assignment"] = {"rack" : g["name"]}
         m.append(g)
 
-    if not conf['dc_flat_net']:
-        if conf['dc_pg_per_host']:
+    if not cd['flat_network']:
+        if cd['prefix_per_host']:
             for top_level_group in m:
-                for i in range(conf['dc_num_hosts_per_rack']):
+                for i in range(cd['num_hosts_per_rack']):
                     g = {
                         "name" : "host-%d" % i,
                         "groups" : []
@@ -132,7 +133,7 @@ def build_topology(conf):
     for n in conf['networks']:
         topo["networks"].append(n)
 
-    if conf['is_aws']:
+    if conf.get('aws'):
         t = _build_aws_topology(conf)
     else:
         t = _build_dc_topology(conf)

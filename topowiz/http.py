@@ -295,10 +295,11 @@ def is_aws():
     form = IsAwsForm()
 
     if form.validate_on_submit():
-        conf = {"is_aws" : form.is_aws.data == "aws"}
-        if conf['is_aws']:
+        if form.is_aws.data == "aws":
+            conf = {"aws" : {}}
             return redirect(url_for('.aws_region', raw_conf=conf_to_url(conf)))
         else:
+            conf = {"datacenter" : {}}
             return redirect(url_for('.dc_own_prefix',
                                     raw_conf=conf_to_url(conf)))
 
@@ -321,7 +322,8 @@ def dc_own_prefix(raw_conf):
     form = DcOwnPrefixForm()
 
     if form.validate_on_submit():
-        conf['dc_pg_per_host'] = form.dc_pg_per_host.data == "yes"
+        conf['datacenter']['prefix_per_host'] = \
+                                    form.dc_pg_per_host.data == "yes"
         return redirect(url_for('.dc_flat_net', raw_conf=conf_to_url(conf)))
 
     return render_template('question.html',
@@ -346,9 +348,10 @@ def dc_flat_net(raw_conf):
     form = DcFlatNetForm()
 
     if form.validate_on_submit():
-        conf['dc_flat_net'] = form.dc_flat_net.data == "yes"
-        if conf['dc_flat_net']:
-            if conf['dc_pg_per_host']:
+        cd = conf['datacenter']
+        cd['flat_network'] = form.dc_flat_net.data == "yes"
+        if cd['flat_network']:
+            if cd['prefix_per_host']:
                 return redirect(url_for('.dc_flat_net_num_hosts',
                                         raw_conf=conf_to_url(conf)))
             else:
@@ -379,7 +382,8 @@ def dc_racks(raw_conf):
     class _DcRacksForm(DcRacksForm):
         pass
 
-    if conf['dc_pg_per_host']:
+    cd = conf['datacenter']
+    if cd['prefix_per_host']:
         # Need to ask for number of hosts per rack only if a PG per host was
         # selected.
         dc_num_hosts_per_rack = IntegerField(
@@ -398,9 +402,9 @@ def dc_racks(raw_conf):
     form = _DcRacksForm()
 
     if form.validate_on_submit():
-        conf['dc_num_racks'] = form.dc_num_racks.data
-        if conf['dc_pg_per_host']:
-            conf['dc_num_hosts_per_rack'] = form.dc_num_hosts_per_rack.data
+        cd['num_racks'] = form.dc_num_racks.data
+        if cd['prefix_per_host']:
+            cd['num_hosts_per_rack'] = form.dc_num_hosts_per_rack.data
         return redirect(url_for('.gen_networks', raw_conf=conf_to_url(conf)))
 
     return render_template('question.html',
@@ -426,7 +430,7 @@ def dc_flat_net_num_hosts(raw_conf):
     form = DcFlatNetNumHostsForm()
 
     if form.validate_on_submit():
-        conf['dc_flat_net_num_hosts'] = form.dc_flat_net_num_hosts.data
+        conf['datacenter']['num_hosts'] = form.dc_flat_net_num_hosts.data
         return redirect(url_for('.gen_networks', raw_conf=conf_to_url(conf)))
 
     return render_template('question.html',
@@ -451,7 +455,7 @@ def aws_region(raw_conf):
     form = AwsRegionForm()
 
     if form.validate_on_submit():
-        conf['aws_region'] = form.aws_region.data
+        conf['aws']['region'] = form.aws_region.data
         return redirect(url_for('.aws_zones', raw_conf=conf_to_url(conf)))
 
     return render_template('question.html',
@@ -484,19 +488,20 @@ def aws_zones(raw_conf):
         # Thank you to the explanation of how to get checkboxes with WTForms:
         # http://www.ergo.io/tutorials/persuading-wtforms/
         #                          persuading-wtforms-to-generate-checkboxes/
-        aws_zones = SelectMultipleField(
-                      'Select one or more availability zones for the cluster:',
-                      choices=[(r, r) for r in AWS_ZONES[conf['aws_region']]],
-                      validators=[validators.DataRequired()],
-                      option_widget=widgets.CheckboxInput(),
-                      widget=widgets.ListWidget(prefix_label=False)
-                    )
+        aws_zones = \
+            SelectMultipleField(
+                'Select one or more availability zones for the cluster:',
+                choices=[(r, r) for r in AWS_ZONES[conf['aws']['region']]],
+                validators=[validators.DataRequired()],
+                option_widget=widgets.CheckboxInput(),
+                widget=widgets.ListWidget(prefix_label=False)
+            )
         submit = SubmitField(label='Submit')
 
     form = _AwsZonesForm()
 
     if form.validate_on_submit():
-        conf['aws_zones'] = form.aws_zones.data
+        conf['aws']['zones'] = form.aws_zones.data
         return redirect(url_for('.gen_networks', raw_conf=conf_to_url(conf)))
 
     return render_template('question.html',
@@ -525,7 +530,7 @@ def gen_networks(raw_conf):
 
     num_networks = len(conf['networks'])
 
-    if conf['is_aws']:
+    if conf.get('aws'):
         try:
             # Test if we could handle one more network
             calculate_num_groups(conf, num_networks=num_networks + 1)
