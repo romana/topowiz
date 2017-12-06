@@ -35,17 +35,7 @@ Here are the steps to create a working environment locally:
     $ git clone git@github.com:romana/topowiz.git
     $ cd topowiz
 
-4. Deployment with Zappa
-
-   Having AWS credentials environment variabls does NOT seem to work. It
-   appears Zappa always uses credentials from ~/.aws/config
-
-   Deploying the application:
-
-    $ zappa init
-    $ zappa deploy dev
-
-5. For local development and testing:
+4. For local development and testing:
 
     $ pip3 install -r requirements/develop.txt
 
@@ -54,6 +44,28 @@ Here are the steps to create a working environment locally:
     $ export FLASK_APP=topowiz/http.py
     $ export FLASK_DEBUG=1
     $ flask run
+
+    Note the FLASK_DEBUG setting: If this is not set then we'll serve static
+    content out of an S3 bucket, which is invonvenient if you are experimenting
+    with local changes. So, please make sure to have this environment variable
+    set for local development.
+
+5. Deployment with Zappa
+
+   Having AWS credentials environment variabls does NOT seem to work. It
+   appears Zappa always uses credentials from ~/.aws/config
+
+   Static content needs to be uploaded to an S3 bucket. Please review
+   topowiz/app_config.py for correctness.
+
+   Uploading static content:
+
+    $ ./s3_upload.py
+
+   Deploying the application:
+
+    $ zappa init
+    $ zappa deploy dev
 
 
 Developing

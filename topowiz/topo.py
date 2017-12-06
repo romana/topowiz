@@ -20,6 +20,8 @@ limitations under the License.
 # user configuration.
 #
 
+from copy import copy
+
 
 def calculate_num_groups(conf, num_networks=None):
     """
@@ -131,7 +133,11 @@ def build_topology(conf):
     """
     topo = {"networks": [], "topologies" : []}
     for n in conf['networks']:
-        topo["networks"].append(n)
+        net = copy(n)
+        # If block mask wasn't defined, we add a default value for it
+        if "block_mask" not in net:
+            net["block_mask"] = 29
+        topo["networks"].append(net)
 
     if conf.get('aws'):
         t = _build_aws_topology(conf)
