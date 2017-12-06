@@ -6,7 +6,8 @@
     <table>
 
     {% for field in form %}
-        {% if field != form.csrf_token and field != form.submit and field != form.cancel %}
+        {% if field != form.csrf_token and field != form.submit and field !=
+        form.cancel and field != form.block_mask %}
             {% if field.errors %}
                 <tr>
                     <td colspan=2>

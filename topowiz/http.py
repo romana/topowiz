@@ -22,7 +22,8 @@ import urllib
 
 from flask     import Flask, render_template, request, redirect, url_for
 from wtforms   import RadioField, SelectMultipleField, StringField, \
-                      SubmitField, IntegerField, validators, widgets
+                      SubmitField, IntegerField, HiddenField, \
+                      validators, widgets
 from flask_wtf import FlaskForm
 
 
@@ -93,12 +94,7 @@ HELP_TEXT_NETWORK = \
      "ranges equally.<br>&nbsp;<br>"
      "You can provide a user friendly name to those "
      "networks to make it easier for you to keep track of them, or just "
-     "accept the generated default name.<br>&nbsp;<br>"
-     "The 'block mask size' is used by "
-     "Romana's IPAM for an internal allocation unit. In most cases "
-     "it is fine to leave it at the default of '29'. Use smaller values "
-     "if you have very large numbers of endpoints on hosts to reduce the "
-     "number of routes that will be created on hosts.")
+     "accept the generated default name.")
 
 HELP_TEXT_DC_OWN_PREFIX = \
     ("If this question is answered with 'Yes' then Romana's IPAM ensures "
@@ -119,10 +115,10 @@ HELP_TEXT_DC_FLAT_NET = \
      "then answer this question with 'Yes'.")
 
 HELP_TEXT_DC_RACKS = \
-    ("Information about your network, such as the maximum number of racks "
-     "and (if required) the maximum number of hosts per rack. This is used "
-     "by Romana's IPAM to calculate address prefix groups for efficient route "
-     "aggregation.")
+    ("Information about the underlying network for your cluster, such as "
+     "the maximum number of racks and (if required) the maximum number "
+     "of hosts per rack. This is used by Romana's IPAM to calculate "
+     "address prefix groups for efficient route aggregation.")
 
 HELP_TEXT_DC_FLAT_NUM_HOSTS = \
     ("Since you selected to have a prefix group per host, Romana needs to "
@@ -438,6 +434,7 @@ def dc_own_prefix(raw_conf):
                            form=form,
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_DC_OWN_PREFIX,
+                           done="20%",
                            action=url_for('.dc_own_prefix',
                                           raw_conf=raw_conf))
 
@@ -470,6 +467,7 @@ def dc_flat_net(raw_conf):
                            form=form,
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_DC_FLAT_NET,
+                           done="40%",
                            action=url_for('.dc_flat_net',
                                           raw_conf=raw_conf))
 
@@ -517,6 +515,7 @@ def dc_racks(raw_conf):
                            help_text=HELP_TEXT_DC_RACKS,
                            table_title="Information about your data center " \
                                        "racks:",
+                           done="70%",
                            action=url_for('.dc_racks', raw_conf=raw_conf))
 
 
@@ -540,6 +539,7 @@ def dc_flat_net_num_hosts(raw_conf):
                            form=form,
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_DC_FLAT_NUM_HOSTS,
+                           done="60%",
                            action=url_for('.dc_flat_net_num_hosts',
                                           raw_conf=raw_conf))
 
@@ -564,6 +564,7 @@ def aws_region(raw_conf):
                            form=form,
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_AWS_REGIONS,
+                           done="30%",
                            action=url_for('.aws_region',
                                           raw_conf=raw_conf))
 
@@ -608,6 +609,7 @@ def aws_zones(raw_conf):
                            form=form,
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_AWS_ZONES,
+                           done="60%",
                            action=url_for('.aws_zones',
                                           raw_conf=raw_conf))
 
@@ -666,6 +668,7 @@ def gen_networks(raw_conf):
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_NETWORK,
                            show_cancel=num_networks > 0,
+                           done="80%",
                            action=url_for('.gen_networks',
                                           raw_conf=raw_conf))
 
