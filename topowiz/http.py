@@ -27,14 +27,7 @@ from flask_wtf import FlaskForm
 
 
 app = Flask(__name__, static_url_path="/static")
-app.secret_key = 'development key'
-
-
-QUESTION_LOOKUP = {
-    "is_aws"     : "Where is your deployment?",
-    "aws_region" : "Select the AWS region of your cluster:",
-    "aws_zones"  : "Select one or more availability zones for the cluster:"
-}
+app.secret_key = "secret key, which we don't really need for this"
 
 
 AWS_REGIONS = [
@@ -135,16 +128,21 @@ HELP_TEXT_DC_FLAT_NUM_HOSTS = \
     ("Since you selected to have a prefix group per host, Romana needs to "
      "know the maximum number of hosts you will have in your cluster.")
 
+
+# ------------------
+# Utility functions
+# ------------------
+
 def calculate_num_groups(conf, num_networks=None):
     """
-    Calculates how many prefix groups we can have per zone. Takes into account
-    that we need a route for each prefix group and we can't have more than 48
-    route total.
+    Calculates how many prefix groups we can have per AWS zone. Takes into
+    account that we need a route for each prefix group and we can't have more
+    than 48 route total.
 
     """
     num_zones  = len(conf['aws_zones'])
     num_nets   = len(conf['networks']) if num_networks is None else \
-                                      num_networks
+                                       num_networks
     num_groups = 32
 
     while num_groups * num_zones * num_nets > 48:
@@ -156,6 +154,10 @@ def calculate_num_groups(conf, num_networks=None):
 
 
 def build_topology(conf):
+    """
+    From the user provided configuration, calculate the full topology config.
+
+    """
     topo = {"networks": [], "topologies" : []}
     for n in conf['networks']:
         topo["networks"].append(n)
@@ -236,12 +238,46 @@ def build_topology(conf):
 
 
 def render_conf(conf):
+    """
+    Provides the formatted version of the config, which is displayed on the
+    various question pages.
+
+    """
     return json.dumps(conf, indent=4)
 
 
 def conf_to_url(conf):
+    """
+    Provides a URL safe version of the config, which therefore can be included
+    in each request.
+
+    """
     return urllib.parse.quote_plus(json.dumps(conf))
 
+
+def get_conf(raw_conf):
+    """
+    Extract the configuration from the urlencoded version.
+
+    Returns tuple of (conf, error)
+
+    In case of error we return the readily rendered error template.
+    If no error, then 'error' in the return tuple is None.
+
+    """
+    try:
+        conf = json.loads(urllib.parse.unquote_plus(raw_conf))
+        return conf, None
+    except:
+        return None, render_template(
+                            'error.html',
+                            error_msg = "Could not extract current "
+                                        "configuration!")
+
+
+# ------------------
+# Forms
+# ------------------
 
 class IsAwsForm(FlaskForm):
     is_aws = RadioField('Where is your deployment?',
@@ -351,22 +387,9 @@ class AddNetworkForm(FlaskForm):
             raise validators.ValidationError("This name is already in use.")
 
 
-def get_conf(raw_conf):
-    """
-    Extract the raw configuration, return error if necessary.
-
-    In case of error we return the readily rendered error template.
-
-    """
-    try:
-        conf = json.loads(urllib.parse.unquote_plus(raw_conf))
-        return conf, None
-    except:
-        return None, render_template(
-                            'error.html',
-                            error_msg = "Could not extract current "
-                                        "configuration!")
-
+# ------------------
+# Views
+# ------------------
 
 @app.route('/', methods=['GET'])
 def home():
@@ -393,6 +416,7 @@ def is_aws():
                            form=form,
                            help_text=HELP_TEXT_IS_AWS,
                            action=url_for('.is_aws'))
+
 
 @app.route('/dc/own_prefix/<path:raw_conf>', methods=['GET', 'POST'])
 def dc_own_prefix(raw_conf):
@@ -649,7 +673,7 @@ def gen_networks(raw_conf):
 @app.route('/done/<path:raw_conf>', methods=['GET'])
 def done(raw_conf):
     """
-    Calculates the topology.
+    Calculates and displayes the full topology.
 
     """
     conf, err = get_conf(raw_conf)
@@ -673,7 +697,7 @@ def done(raw_conf):
 @app.route('/download/<path:raw_conf>', methods=['GET'])
 def download(raw_conf):
     """
-    Calculates the topology.
+    Serves the full topology in downloadable JSON format.
 
     """
     conf, err = get_conf(base64.urlsafe_b64decode(raw_conf).decode("utf-8"))
