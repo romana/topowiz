@@ -25,6 +25,8 @@ from wtforms   import RadioField, SelectMultipleField, StringField, \
                       SubmitField, IntegerField, validators, widgets
 from flask_wtf import FlaskForm
 
+from .topo     import calculate_num_groups, build_topology
+
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = "secret key, which we don't really need for this"
@@ -124,134 +126,10 @@ HELP_TEXT_DC_FLAT_NUM_HOSTS = \
      "know the maximum number of hosts you will have in your cluster.")
 
 
-# ------------------
-# Utility functions
-# ------------------
-
-def calculate_num_groups(conf, num_networks=None):
-    """
-    Calculates how many prefix groups we can have per AWS zone. Takes into
-    account that we need a route for each prefix group and we can't have more
-    than 48 route total.
-
-    """
-    num_zones  = len(conf['aws_zones'])
-    num_nets   = len(conf['networks']) if num_networks is None else \
-                                       num_networks
-    num_groups = 32
-
-    while num_groups * num_zones * num_nets > 48:
-        if num_groups == 1:
-            raise Exception("Too many networks and/or zones, reaching "
-                            "50 route limit for AWS.")
-        num_groups //= 2
-    return num_groups
-
-
-def _build_aws_topology(conf):
-    """
-    Build a topology for am AWS VPC deployment.
-
-    """
-    # - If just one zone, we need one group, since it's a flat network.
-    # - If it's more than one zone, we want many groups per zone, but
-    #   the total number of groups should not exceed 50 or even 40.
-    # - We only have one topology if in VPC.
-    t = {
-        "networks" : [n['name'] for n in conf['networks']],
-        "map"      : []
-    }
-
-    num_zones = len(conf['aws_zones'])
-
-    if num_zones == 1:
-        t["map"].append({
-            "name"   : conf['aws_zones'][0],
-            "groups" : []
-        })
-    else:
-        num_groups = calculate_num_groups(conf)
-
-        for zone in conf['aws_zones']:
-            m = {
-                "name" : zone,
-                "assignment" : {"failure-domain" : zone},
-                "groups" : []
-            }
-            for i in range(num_groups):
-                m["groups"].append({
-                    "name" : "%s-%02d" % (zone, i),
-                    "groups" : []
-                })
-            t["map"].append(m)
-    return t
-
-
-def _build_dc_topology(conf):
-    """
-    Build a topology for a routed data center network.
-
-    """
-    t = {
-        "networks" : [n['name'] for n in conf['networks']],
-    }
-
-    top_level_group_label = None
-    if conf['dc_flat_net']:
-        if conf['dc_pg_per_host']:
-            num_groups = conf['dc_flat_net_num_hosts']
-            top_level_group_label = "host-%d"
-        else:
-            num_groups = 1
-    else:
-        num_groups = conf['dc_num_racks']
-        top_level_group_label = "rack-%d"
-
-    m = []
-    for i in range(num_groups):
-        g = {"groups" : []}
-        if top_level_group_label:
-            g["name"] = top_level_group_label % i
-        if not conf['dc_flat_net']:
-            g["assignment"] = {"rack" : g["name"]}
-        m.append(g)
-
-    if not conf['dc_flat_net']:
-        if conf['dc_pg_per_host']:
-            for top_level_group in m:
-                for i in range(conf['dc_num_hosts_per_rack']):
-                    g = {
-                        "name" : "host-%d" % i,
-                        "groups" : []
-                    }
-                    top_level_group["groups"].append(g)
-    t["map"]  = m
-
-    return t
-
-
-def build_topology(conf):
-    """
-    From the user provided configuration, calculate the full topology config.
-
-    """
-    topo = {"networks": [], "topologies" : []}
-    for n in conf['networks']:
-        topo["networks"].append(n)
-
-    if conf['is_aws']:
-        t = _build_aws_topology(conf)
-    else:
-        t = _build_dc_topology(conf)
-
-    topo["topologies"].append(t)
-    return topo
-
-
 def render_conf(conf):
     """
-    Provides the formatted version of the config, which is displayed on the
-    various question pages.
+    Provides the formatted version of the user config, which is displayed on
+    the various question pages.
 
     """
     return json.dumps(conf, indent=4)
@@ -263,7 +141,7 @@ def conf_to_url(conf):
     in each request.
 
     """
-    return urllib.parse.quote_plus(json.dumps(conf))
+    return base64.urlsafe_b64encode(json.dumps(conf).encode("utf=8")).decode()
 
 
 def get_conf(raw_conf):
@@ -277,7 +155,7 @@ def get_conf(raw_conf):
 
     """
     try:
-        conf = json.loads(urllib.parse.unquote_plus(raw_conf))
+        conf = json.loads(base64.urlsafe_b64decode(raw_conf).decode("utf-8"))
         return conf, None
     except Exception:
         return None, render_template(
@@ -704,9 +582,7 @@ def done(raw_conf):
     # Making a safe encoding for the URL. Note the 'decode' in the very end.
     # That's to remove the annoying   b'...'  formatting around the utf-8
     # encoded byte sequence.
-    download_link = url_for(".download",
-                            raw_conf=base64.urlsafe_b64encode(
-                                json.dumps(conf).encode("utf=8")).decode())
+    download_link = url_for(".download", raw_conf=raw_conf)
 
     return render_template('done.html',
                            topo=json.dumps(topo, indent=4),
@@ -720,7 +596,9 @@ def download(raw_conf):
     Serves the full topology in downloadable JSON format.
 
     """
-    conf = json.loads(base64.urlsafe_b64decode(raw_conf).decode("utf-8"))
+    conf, err = get_conf(raw_conf)
+    if err:
+        return err
 
     topo = build_topology(conf)
     response = app.response_class(
