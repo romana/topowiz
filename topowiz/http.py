@@ -23,12 +23,16 @@ from flask     import Flask, render_template, request, redirect, url_for
 from wtforms   import RadioField, SelectMultipleField, StringField, \
                       SubmitField, IntegerField, validators, widgets
 from flask_wtf import FlaskForm
+from flask_s3  import FlaskS3
 
 from .topo     import calculate_num_groups, build_topology
 
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = "secret key, which we don't really need for this"
+app.config.from_object("topowiz.app_config")
+
+s3 = FlaskS3(app)
 
 
 AWS_REGIONS = [
@@ -550,9 +554,13 @@ def gen_networks(raw_conf):
     if form.validate_on_submit():
         cidr       = form.net_cidr.data
         name       = form.net_name.data
-        block_mask = form.block_mask.data
-        conf["networks"].append({"cidr" : cidr, "name" : name,
-                                 "block_mask" : block_mask})
+        # block_mask = form.block_mask.data
+        conf["networks"].append({
+                                    "cidr" : cidr,
+                                    "name" : name,
+                                    # Not even showing it in user config
+                                    # "block_mask" : block_mask
+                                })
         return redirect(url_for('.gen_networks', raw_conf=conf_to_url(conf)))
 
     if num_networks == 0:

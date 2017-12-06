@@ -1,13 +1,13 @@
 <html>
     <head>
         <title>Romana Topology Generator</title>
-        <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/topo-gen-resources/static/topowiz.css">
-        <link rel="shortcut icon" href="https://s3-us-west-1.amazonaws.com/topo-gen-resources/static/favicon.ico">
+        <link rel="stylesheet" href="{{ url_for('static', filename='topowiz.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     </head>
 
     <body>
         <center>
-            <a href="http://romana.io"><img src="https://s3-us-west-1.amazonaws.com/topo-gen-resources/static/romana_logo_small.png"></a>
+            <a href="http://romana.io"><img src="{{ url_for('static', filename='romana_logo_small.png') }}"></a>
             <hr>
             {% block header %}
             <div class="navbar">
