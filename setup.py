@@ -27,22 +27,20 @@ setup(
     long_description     = long_description,
     packages             = find_packages(),
     include_package_data = True,
-    entry_points         = {
-        'console_scripts' : ['topowiz=topowiz.main:main'],
-    },
     install_requires     = [
-        'argparse==1.2.1',
-        'boto3>=1.4.7'
+        'argparse>=1.2.1',
+        'ipaddr>=2.2.0',
+        'Flask>=0.12.2',
+        'WTForms>=2.1',
+        'Flask-WTF>=0.14.2',
     ],
     classifiers          = [
         'Programming Language :: Python',
         'Natural Language :: English',
-        'Environment :: Console',
+        'Environment :: Web Environment',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
-        'Topic :: Security',
-        'Topic :: System :: Monitoring'
-        'Topic :: System :: Networking :: Monitoring'
+        'Topic :: System :: Networking'
     ]
 )
