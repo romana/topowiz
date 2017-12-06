@@ -706,7 +706,7 @@ def done(raw_conf):
     # encoded byte sequence.
     download_link = url_for(".download",
                             raw_conf=base64.urlsafe_b64encode(
-                                conf_to_url(conf).encode("utf=8")).decode())
+                                json.dumps(conf).encode("utf=8")).decode())
 
     return render_template('done.html',
                            topo=json.dumps(topo, indent=4),
@@ -720,9 +720,7 @@ def download(raw_conf):
     Serves the full topology in downloadable JSON format.
 
     """
-    conf, err = get_conf(base64.urlsafe_b64decode(raw_conf).decode("utf-8"))
-    if err:
-        return err
+    conf = json.loads(base64.urlsafe_b64decode(raw_conf).decode("utf-8"))
 
     topo = build_topology(conf)
     response = app.response_class(
