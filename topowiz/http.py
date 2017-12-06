@@ -76,25 +76,27 @@ VALID_PARAM_TYPES = dict((e) for e in VALID_PARAMS)
 HELP_TEXT_IS_AWS = \
     ("Topology configurations for data center and AWS deployments differ. It "
      "is therefore necessary to let the topology generator know where the "
-     "Romana cluster runs.")
+     "Romana cluster is deployed.")
 
 HELP_TEXT_AWS_REGIONS = \
-    ("Topology configuration is specific to the AWS region and zones.")
+    ("Topology configuration is specific to the AWS region and zones. "
+     "Zones are specific to the AWS region the cluster is deployed in.")
 
 HELP_TEXT_AWS_ZONES = \
     ("By letting the topology generator know the availability zones of "
      "cluster nodes, a topology can be constructed, which facilitates the "
      "automatic creation of 'prefix groups' (aggregated IP address spaces "
-     "for endpoints on those nodes). The topology also will contain "
+     "for endpoints on those nodes). The topology will contain "
      "annotations that enable the automatic assignment of new cluster "
      "nodes to the correct prefix groups.")
 
 HELP_TEXT_NETWORK = \
     ("A 'network' defines an address range from which Romana "
-     "assign IP addresses to endpoints (such as pods or VMs). "
+     "assigns IP addresses to endpoints (such as pods or VMs). "
      "You can define more than one network. This is useful in those cases "
-     "when you do not have one large, contiguous address range available "
-     "to you, but only a few smaller ones. Romana will use all address "
+     "when you do not have one large, contiguous address range available, "
+     "but only a few smaller ones. Define a network for each address range "
+     "you are able to use for endpoint IPs. Romana will use all address "
      "ranges equally.<br>&nbsp;<br>"
      "You can provide a user friendly name to those "
      "networks to make it easier for you to keep track of them, or just "
@@ -103,7 +105,7 @@ HELP_TEXT_NETWORK = \
      "Romana's IPAM for an internal allocation unit. In most cases "
      "it is fine to leave it at the default of '29'. Use smaller values "
      "if you have very large numbers of endpoints on hosts to reduce the "
-     "number of routes on hosts.")
+     "number of routes that will be created on hosts.")
 
 HELP_TEXT_DC_OWN_PREFIX = \
     ("If this question is answered with 'Yes' then Romana's IPAM ensures "
