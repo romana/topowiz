@@ -143,6 +143,10 @@ input[type=submit] {
     margin-top:1em;
 }
 
+input[type=submit].done_button {
+    margin-top:0;
+}
+
 p.current_config_hdr {
     font-size: 1.2em;
     font-weight: bold;

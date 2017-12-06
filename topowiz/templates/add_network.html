@@ -2,7 +2,7 @@
 
 {% block form %}
 
-    <p class="table_title">{{ table_title }}{% if show_cancel %}{{ form.cancel() }}{% endif %}</p>
+    <p class="table_title">{{ table_title }}{% if show_cancel %}{{ form.cancel(class_="done_button") }}{% endif %}</p>
     <table>
 
     {% for field in form %}
