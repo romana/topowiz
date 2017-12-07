@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+
+{% block form %}
+
+    <p class="table_title">{{ table_title }}</p>
+    <table>
+
+            <tr>
+                <td colspan=2>
+                    {{ form.add_more() }} &nbsp; {{ form.finalize() }}
+                </td>
+            </tr>
+
+    </table>
+
+{% endblock %}

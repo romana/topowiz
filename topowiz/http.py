@@ -18,6 +18,7 @@ limitations under the License.
 import base64
 import ipaddr
 import json
+import string
 
 from flask     import Flask, render_template, request, redirect, url_for
 from wtforms   import RadioField, SelectMultipleField, StringField, \
@@ -99,6 +100,11 @@ HELP_TEXT_NETWORK = \
      "You can provide a user friendly name to those "
      "networks to make it easier for you to keep track of them, or just "
      "accept the generated default name.")
+
+HELP_TEXT_MORE_NETWORKS = \
+    ("You can define more than one network for your topology. If you are "
+     "done adding networks, press 'Finalize' to create the full topology "
+     "configuration.")
 
 HELP_TEXT_DC_OWN_PREFIX = \
     ("If this question is answered with 'Yes' then Romana's IPAM ensures "
@@ -237,7 +243,6 @@ class AddNetworkForm(FlaskForm):
                                       min=16, max=32)
                               ])
     submit     = SubmitField(label='Submit')
-    cancel     = SubmitField(label="Done")
 
     def __init__(self, *args, **kwargs):
         self.conf = kwargs['conf']
@@ -276,9 +281,28 @@ class AddNetworkForm(FlaskForm):
 
         """
         name = field.data
+
+        valid_letters      = string.ascii_letters + string.digits + "_-"
+        valid_first_letter = string.ascii_letters
+
+        if name[0] not in valid_first_letter or \
+                any(l for l in name[1:] if l not in valid_letters):
+            raise validators.ValidationError("Invalid name. Use letters, "
+                                             "digits, '_' and '-'. First "
+                                             "character has to be letter.")
+        if not 1 < len(name) < 40:
+            raise validators.ValidationError("Name should be between 1 and "
+                                             "40 chracters.")
+
         other_names = [n['name'] for n in self.conf.get('networks', [])]
+
         if name and name in other_names:
             raise validators.ValidationError("This name is already in use.")
+
+
+class AddMoreNetworksForm(FlaskForm):
+    add_more = SubmitField(label='Add more')
+    finalize = SubmitField(label='Finalize')
 
 
 # ------------------
@@ -546,10 +570,6 @@ def gen_networks(raw_conf):
         form = AddNetworkForm(conf=conf, net_name="net-%d" % num_networks)
     else:
         form = AddNetworkForm(conf=conf)
-        if form.cancel.data:
-            # Processing the cancel button ahead of form validation, because we
-            # want to allow it to be pressed even if form isn't filled out.
-            return redirect(url_for('.done', raw_conf=conf_to_url(conf)))
 
     if form.validate_on_submit():
         cidr       = form.net_cidr.data
@@ -561,7 +581,8 @@ def gen_networks(raw_conf):
                                     # Not even showing it in user config
                                     # "block_mask" : block_mask
                                 })
-        return redirect(url_for('.gen_networks', raw_conf=conf_to_url(conf)))
+        return redirect(url_for('.gen_more_networks',
+                                raw_conf=conf_to_url(conf)))
 
     if num_networks == 0:
         table_title = "Provide information for a network:"
@@ -574,9 +595,37 @@ def gen_networks(raw_conf):
                            table_title=table_title,
                            render_conf=render_conf(conf),
                            help_text=HELP_TEXT_NETWORK,
-                           show_cancel=num_networks > 0,
                            done="80%",
                            action=url_for('.gen_networks',
+                                          raw_conf=raw_conf))
+
+@app.route('/gen/more_nets/<path:raw_conf>', methods=['GET', 'POST'])
+def gen_more_networks(raw_conf):
+    """
+    Ask the question whether more networks should be added.
+
+    """
+    conf, err = get_conf(raw_conf)
+    if err:
+        return err
+
+    form = AddMoreNetworksForm(conf=conf)
+    if form.validate_on_submit():
+        if form.add_more.data:
+            return redirect(url_for('.gen_networks',
+                                    raw_conf=conf_to_url(conf)))
+        else:
+            return redirect(url_for('.done', raw_conf=conf_to_url(conf)))
+
+    table_title = "Do you want to add more networks to your topology?"
+
+    return render_template('add_more_networks.html',
+                           form=form,
+                           table_title=table_title,
+                           render_conf=render_conf(conf),
+                           help_text=HELP_TEXT_MORE_NETWORKS,
+                           done="85%",
+                           action=url_for('.gen_more_networks',
                                           raw_conf=raw_conf))
 
 
