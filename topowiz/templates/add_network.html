@@ -2,12 +2,11 @@
 
 {% block form %}
 
-    <p class="table_title">{{ table_title }}{% if show_cancel %}{{ form.cancel(class_="done_button") }}{% endif %}</p>
+    <p class="table_title">{{ table_title }}</p>
     <table>
 
     {% for field in form %}
-        {% if field != form.csrf_token and field != form.submit and field !=
-        form.cancel and field != form.block_mask %}
+        {% if field != form.csrf_token and field != form.submit and field != form.finalize and field != form.add_more and field != form.block_mask %}
             {% if field.errors %}
                 <tr>
                     <td colspan=2>
