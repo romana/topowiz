@@ -234,14 +234,6 @@ class AddNetworkForm(FlaskForm):
                              [validators.required()])
     net_name   = StringField('User friendly name of network:',
                              [validators.required()])
-    block_mask = IntegerField('Block mask size:',
-                              default=29,
-                              validators=[
-                                  validators.required(),
-                                  validators.NumberRange(
-                                      message="Should be between 16 and 32",
-                                      min=16, max=32)
-                              ])
     submit     = SubmitField(label='Submit')
 
     def __init__(self, *args, **kwargs):
@@ -574,12 +566,9 @@ def gen_networks(raw_conf):
     if form.validate_on_submit():
         cidr       = form.net_cidr.data
         name       = form.net_name.data
-        # block_mask = form.block_mask.data
         conf["networks"].append({
                                     "cidr" : cidr,
                                     "name" : name,
-                                    # Not even showing it in user config
-                                    # "block_mask" : block_mask
                                 })
         return redirect(url_for('.gen_more_networks',
                                 raw_conf=conf_to_url(conf)))
@@ -598,6 +587,7 @@ def gen_networks(raw_conf):
                            done="80%",
                            action=url_for('.gen_networks',
                                           raw_conf=raw_conf))
+
 
 @app.route('/gen/more_nets/<path:raw_conf>', methods=['GET', 'POST'])
 def gen_more_networks(raw_conf):

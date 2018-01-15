@@ -134,9 +134,6 @@ def build_topology(conf):
     topo = {"networks": [], "topologies" : []}
     for n in conf['networks']:
         net = copy(n)
-        # If block mask wasn't defined, we add a default value for it
-        if "block_mask" not in net:
-            net["block_mask"] = 29
         topo["networks"].append(net)
 
     if conf.get('aws'):
